@@ -88,6 +88,38 @@ RSpec.describe Post::Trending do
   end
 end
 ```
+## Excecuting Mutations Resolve method
+
+A way to unit test the funcationly of a mutation is to call the resolve method. This can be tough because of where lives in respect to graphQL. First, you should try and abstract any logic out of the resolve like the examples above. If you still want to unit test the resolve method, you can do the following
+
+```ruby
+# if you initialize the mutation but use nil and empty hash for the object and context 
+ let(:migration) { Mutations::FindOrCreateJobLocation.new(object: nil, context: {}) }
+
+# This allows me to hit the resolve method directly with the proper params
+
+describe 'CreateJobLocation mutation creates a JobLocation' do
+
+# faker objects
+let(:location) {create(:location)}
+let(:job) {create(:job)}
+  
+    it 'has an existing location' do
+      result = migration.resolve(
+          location_id: location.id,
+          job_id: job.id,
+          name: "test name",
+          domain: "test domain"
+        )
+
+      expect(result[:job_location].job_id).to eq(job.id)
+      expect(result[:job_location].location_id).to eq(location.id)
+      expect(result[:errors]).to be_empty
+    end
+end
+
+```
+
 
 ## Executing GraphQL queries
 
